@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct {
-	int tag;
+	char tag[4];
 	int dest_size;
 	int src_size;
 	short wnd_size;
@@ -15,8 +15,7 @@ typedef struct {
 #define WND_SIZE (0x400)
 #define WND_MASK (WND_SIZE - 1)
 
-#define SLID_TAG (0x534C4944)
-#define DILS_TAG (0x44494C53)
+const char SLID_TAG[4] = "SLID";
 
 unsigned char read_byte(const char *input, int *readoff)
 {
@@ -132,7 +131,7 @@ int slid_pack(const char *src, int src_size, char *dest, short some_size) {
 	int cmd_off = sizeof(header_t);
 	int dst_off = cmd_off;
 
-	header->tag = SLID_TAG;
+	strncpy(header->tag, SLID_TAG, sizeof(SLID_TAG));
 	header->dest_size = src_size;
 	header->wnd_size = WND_SIZE;
 	header->unkn = some_size;
@@ -256,7 +255,7 @@ int main(int argc, char *argv[]) {
 		fseek(f, offset, SEEK_SET);
 		fread(header, 1, sizeof(header_t), f);
 
-		if (header->tag != SLID_TAG && header->tag != DILS_TAG) {
+		if (strncmp(header->tag, SLID_TAG, sizeof(SLID_TAG))) {
 			printf("Not a SLID file!");
 			return 1;
 		}
