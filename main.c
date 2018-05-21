@@ -16,6 +16,7 @@ typedef struct {
 #define WND_MASK (WND_SIZE - 1)
 
 #define SLID_TAG (0x534C4944)
+#define DILS_TAG (0x44494C53)
 
 unsigned char read_byte(const char *input, int *readoff)
 {
@@ -255,7 +256,7 @@ int main(int argc, char *argv[]) {
 		fseek(f, offset, SEEK_SET);
 		fread(header, 1, sizeof(header_t), f);
 
-		if (header->tag != SLID_TAG) {
+		if (header->tag != SLID_TAG && header->tag != DILS_TAG) {
 			printf("Not a SLID file!");
 			return 1;
 		}
@@ -282,7 +283,7 @@ int main(int argc, char *argv[]) {
 		char *src = (char *)malloc(src_size);
 		fread(src, 1, src_size, f);
 
-		char *dest = (char *)malloc(src_size + sizeof(header_t));
+		char *dest = (char *)malloc(0x100000);
 
 		int dest_size = slid_pack(src, src_size, dest, some_size);
 		FILE *d = fopen(argv[2], "wb");
